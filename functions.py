@@ -4,7 +4,7 @@ from datetime import datetime
 import typing
 from PIL import Image
 from ultralytics import YOLO
-import os
+import re
 
 import streamlit as st
 
@@ -12,17 +12,6 @@ import streamlit as st
 @st.cache_resource
 def init_model(model_path):
     model = YOLO(model_path, task="detect")
-    new_path = "./model/ocr_best.torchscript"
-    if not os.path.exists(new_path):
-        model.export(
-            optimize=True,
-            half=True,
-            int8=True,
-            dynamic=True,
-            simplify=True,
-        )
-
-    model = YOLO(new_path, task="detect")
     return model
 
 
@@ -56,9 +45,21 @@ def timer(start_time: datetime = None) -> "typing.Union[datetime.datetime, str]"
 def generate_dataframe(links: str, predictions: list, columns: list) -> pd.DataFrame:
     total_row = len(links.split("\n"))
 
+    idpel = []
+    blth = []
+
+    url_pattern = r"idpel=(\d+)&nomor_meter=.*?&blth=(\d+)"
+    for url in links.split("\n"):
+        match = re.search(url_pattern, url)
+        if match:
+            idpel.append(match.group(1))
+            blth.append(match.group(2))
+        else:
+            idpel.append("")
+            blth.append("")
+
     statuses = [False] * total_row
-    blth = [""] * total_row
-    idpel = [""] * total_row
+
     df = pd.DataFrame(
         {
             "ImageURL": links.split("\n"),
