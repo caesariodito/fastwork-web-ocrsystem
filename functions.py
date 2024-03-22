@@ -1,10 +1,9 @@
-import pandas as pd
 import requests
 from datetime import datetime
 import typing
 from PIL import Image
 from ultralytics import YOLO
-import re
+import time
 
 import streamlit as st
 
@@ -41,57 +40,12 @@ def timer(start_time: datetime = None) -> "typing.Union[datetime.datetime, str]"
         )
 
 
-@st.cache_data(show_spinner=False)
-def generate_dataframe(links: str, predictions: list, columns: list) -> pd.DataFrame:
-    total_row = len(links.split("\n"))
-
-    idpel = []
-    blth = []
-
-    url_pattern = r"idpel=(\d+)&nomor_meter=.*?&blth=(\d+)"
-    for url in links.split("\n"):
-        match = re.search(url_pattern, url)
-        if match:
-            idpel.append(match.group(1))
-            blth.append(match.group(2))
-        else:
-            idpel.append("")
-            blth.append("")
-
-    statuses = [False] * total_row
-
-    df = pd.DataFrame(
-        {
-            "ImageURL": links.split("\n"),
-            "Status": statuses,
-            "Hasil OCR": predictions,
-            "Blth": blth,
-            "IDPEL": idpel,
-        },
-        columns=columns,
-    )
-
-    return df
-
-
-@st.cache_data(show_spinner=False)
-def load_image_from_url(url):
-    result = Image.open(requests.get(url, stream=True).raw)
-    return result
-
-
-def perform_ocr(links: str, model, names) -> list:
-    ocr_timer = timer(None)
-
-    labels = []
-    urls = links.split("\n")
-    my_bar = st.progress(0, text="Performing OCR...")
-
-    for i, url in enumerate(urls):
-        my_bar.progress(int(i * 100 / len(urls)), text="Performing OCR...")
+def perform_ocr(link: str, model, names) -> list:
+    try:
+        ocr_timer = timer(None)
 
         load_timer = timer(None)
-        im = load_image_from_url(url)
+        im = load_image_from_url(link)
         st.write(f"Time to load image: {timer(load_timer)}")
 
         predict_timer = timer(None)
@@ -100,13 +54,21 @@ def perform_ocr(links: str, model, names) -> list:
 
         for result in results:
             label = get_text(result, names)
-            labels.append(label)
 
-    my_bar.empty()
+        st.write(f"Time to perform OCR: {timer(ocr_timer)}")
 
-    st.write(f"Time to perform OCR: {timer(ocr_timer)}")
+        return label[:5]
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        time.sleep(3)
+        return None
 
-    return labels
+
+# change the package into imread-from-url
+@st.cache_data(show_spinner=False)
+def load_image_from_url(url):
+    result = Image.open(requests.get(url, stream=True).raw)
+    return result
 
 
 def predict(_image, model):
