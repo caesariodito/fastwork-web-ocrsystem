@@ -25,7 +25,7 @@ start_data = pd.DataFrame(
     {
         "ImageURL": image_urls,
         "Status": False,
-        "Hasil OCR": "05693",
+        "Hasil OCR": "5693",
         "Stand Kini": None,
         "Blth": blth,
         "IDPEL": idpel,

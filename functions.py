@@ -43,21 +43,18 @@ def timer(start_time: datetime = None) -> "typing.Union[datetime.datetime, str]"
 def perform_ocr(link: str, model, names) -> list:
     try:
         ocr_timer = timer(None)
-
-        load_timer = timer(None)
+        
         im = load_image_from_url(link)
-        st.write(f"Time to load image: {timer(load_timer)}")
 
-        predict_timer = timer(None)
         results = predict(im, model)
-        st.write(f"Time to predict image: {timer(predict_timer)}")
 
         for result in results:
             label = get_text(result, names)
 
         st.write(f"Time to perform OCR: {timer(ocr_timer)}")
+        st.write("Done...")
 
-        return label[:5]
+        return label[:5].lstrip("0")
     except Exception as e:
         st.error(f"An error occurred: {e}")
         time.sleep(3)
