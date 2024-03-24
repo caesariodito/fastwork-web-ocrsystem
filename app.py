@@ -43,6 +43,8 @@ def main():
 
     st.divider()
 
+    false_status = st.button("Show only incorrect data")
+
     edited_df = de(
         ss.start_df,
         num_rows="dynamic",
@@ -58,6 +60,9 @@ def main():
             ),
         },
     )
+
+    if false_status:
+        edited_df = edited_df[edited_df["Status"] == False]
 
     if not ss.start_df.equals(edited_df):
         ss.start_df = edited_df
