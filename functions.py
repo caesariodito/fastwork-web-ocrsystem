@@ -40,6 +40,15 @@ def timer(start_time: datetime = None) -> "typing.Union[datetime.datetime, str]"
         )
 
 
+def batch_ocr(image_urls: list, model, names) -> list:
+    results = predict(image_urls, model=model)
+    labels = []
+    for result in results:
+        label = get_text(result, names)
+        labels.append(label[:5].lstrip("0"))
+    return labels
+
+
 def perform_ocr(link: str, model, names) -> list:
     try:
         ocr_timer = timer(None)
