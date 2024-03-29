@@ -97,13 +97,21 @@ def main():
 
     p1, p2 = st.columns(2)
     p1.button("Filter Status", on_click=click, args=("false",), key="false_data")
-    p2.button("Perform Ocr", on_click=click, args=("ocr",), key="ocr_button")
+    # p2.button("Perform Ocr", on_click=click, args=("ocr",), key="ocr_button")
     lock = st.checkbox("Lock Data", key="lock_data", value=ss.clicks.get("ocr"))
+    ocr = st.checkbox("OCR", key="perform_ocr")
 
     # filter UI
     col_f1, col_f2 = st.columns(2)
     upfilter = col_f1.text_input("Filter Data Diatas Prosentase", key="up_filter")
     downfilter = col_f2.text_input("Filter Data Dibawah Prosentase", key="down_filter")
+
+    upfilter2 = col_f1.text_input(
+        "Filter Data Diatas Prosentase (2)", key="up_filter_2"
+    )
+    downfilter2 = col_f2.text_input(
+        "Filter Data Dibawah Prosentase (2)", key="down_filter_2"
+    )
 
     edited_df = de(
         ss.start_df,
@@ -117,6 +125,9 @@ def main():
             ),
             "ImageURL": st.column_config.ImageColumn(
                 "ImageURL", help="Image data preview"
+            ),
+            "Presentase": st.column_config.NumberColumn(
+                "Presentase", help="Percentage of deviation"
             ),
         },
         column_order=(
@@ -158,24 +169,35 @@ def main():
         ss.start_df["Hasil OCR"] = None
         ss.start_df["Status"] = False
 
+        ss.start_df["Presentase"] = ss.start_df["Presentase"].apply(
+            lambda x: round(x, 2) * 100
+        )
+
         ss.start_df["Stand Kini"] = ss.start_df["Stand Kini"].astype(str)
         ss.start_df.reset_index(inplace=True)
 
         ss.clicks["file1"] = False
         ss.clicks["file2"] = False
 
-    if upfilter:
-        ss.start_df = ss.start_df[ss.start_df["Presentase"] >= float(upfilter)]
+    if upfilter2 and downfilter2 and upfilter and downfilter:
+        ss.start_df = ss.start_df.query(
+            f"({upfilter} < Presentase < {downfilter}) | ({upfilter2} < Presentase < {downfilter2})"
+        )
+    else:
+        if upfilter:
+            ss.start_df = ss.start_df[ss.start_df["Presentase"] >= float(upfilter)]
 
-    if downfilter:
-        ss.start_df = ss.start_df[ss.start_df["Presentase"] <= float(downfilter)]
+        if downfilter:
+            ss.start_df = ss.start_df[ss.start_df["Presentase"] <= float(downfilter)]
 
-    if ss.clicks.get("ocr"):
+    # if ss.clicks.get("ocr"):
+    if ocr:
         # if ocr_button:
         # ss.start_df["Hasil OCR"] = f.batch_ocr(
         #     ss.start_df["ImageURL"].tolist(), model, NAMES
         # )
         # my_bar = st.progress(0, text="Loading...")
+        ss.clicks["ocr"] = True
         for index, row in ss.start_df.iterrows():
             # my_bar.progress(int(index * 100 / ss.start_df.shape[0]), text="Loading...")
             ocr_result = f.perform_ocr(row["ImageURL"], model, NAMES)
