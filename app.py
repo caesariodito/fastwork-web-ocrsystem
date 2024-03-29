@@ -63,7 +63,7 @@ def main():
         file1 = st.file_uploader(
             "Upload Data Periode Sebelumnya",
             key="old_csv",
-            type=["csv", "xlsx"],
+            type=["csv", "xlsx", "xls"],
         )
         if file1 is not None:
             try:
@@ -80,7 +80,7 @@ def main():
         file2 = st.file_uploader(
             "Upload Data Periode Sekarang",
             key="new_csv",
-            type=["csv", "xlsx"],
+            type=["csv", "xlsx", "xls"],
         )
         if file2 is not None:
             try:
