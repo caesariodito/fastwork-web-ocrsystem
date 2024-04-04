@@ -142,9 +142,7 @@ def main():
     )
 
     if file1 is not None and file2 is not None:
-        ss.start_df = df_file2.merge(df_file1, on="IDPEL", how="inner").sample(
-            100, random_state=42
-        )
+        ss.start_df = df_file2.merge(df_file1, on="IDPEL", how="outer")
         ss.start_df["Deviasi"] = ss.start_df["LWBPPAKAI_x"] - ss.start_df["LWBPPAKAI_y"]
         ss.start_df["Presentase"] = ss.start_df["Deviasi"] / ss.start_df["LWBPPAKAI_x"]
         base_url = "https://portalapp.iconpln.co.id/acmt/DisplayBlobServlet1?idpel={}&nomor_meter=null&blth={}"
@@ -152,6 +150,7 @@ def main():
             base_url.format(idpel, blth)
             for idpel, blth in zip(ss.start_df["IDPEL"], ss.start_df["BLTH_x"])
         ]
+        # st.write(ss.start_df)
         ss.start_df.drop(
             ["BLTH_y", "SAHLWBP_y"],
             axis=1,
