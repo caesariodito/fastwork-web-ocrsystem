@@ -3,6 +3,7 @@ from streamlit import session_state as ss, data_editor as de, rerun as rr
 import functions as f
 from PIL import Image
 import pandas as pd
+import numpy as np
 
 # PAGE CONFIG
 thumbnail = Image.open("./docs/thumbnail.jpg")
@@ -172,7 +173,9 @@ def main():
             lambda x: round(x, 2) * 100
         )
 
+        ss.start_df["Stand Kini"] = ss.start_df["Stand Kini"].fillna(-1).astype(int)
         ss.start_df["Stand Kini"] = ss.start_df["Stand Kini"].astype(str)
+        ss.start_df["Stand Kini"] = ss.start_df["Stand Kini"].replace("-1", np.nan)
         ss.start_df.reset_index(inplace=True)
 
         ss.clicks["file1"] = False
