@@ -6,9 +6,9 @@ import pandas as pd
 import numpy as np
 
 # PAGE CONFIG
-thumbnail = Image.open("./docs/thumbnail.jpg")
+thumbnail = Image.open("./docs/thumbnail.jpeg")
 logo = Image.open("./docs/logo.png")
-st.set_page_config(layout="centered", page_icon=logo, page_title="OCR System")
+st.set_page_config(layout="centered", page_icon=logo, page_title="BILLING AI")
 
 
 # INITS
@@ -55,7 +55,8 @@ def click(key):
 def main():
     # Thumbnail for PLN
     st.image(thumbnail, use_column_width=True)
-    st.title("OCR System")
+    st.title("BILLING AI")
+    st.markdown("###### by UP3 WATAMPONE")
 
     col1, col2 = st.columns(2)
     df_columns_to_take = ["BLTH", "IDPEL", "SAHLWBP", "LWBPPAKAI"]
