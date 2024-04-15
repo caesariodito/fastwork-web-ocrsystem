@@ -5,11 +5,27 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 
+# FOR AUTH
+import yaml
+from yaml.loader import SafeLoader
+import streamlit_authenticator as stauth
+
+
 # PAGE CONFIG
 thumbnail = Image.open("./docs/thumbnail.jpeg")
 logo = Image.open("./docs/logo.png")
 st.set_page_config(layout="centered", page_icon=logo, page_title="BILLING AI")
 
+with open("config.yaml") as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+authenticator = stauth.Authenticate(
+    config["credentials"],
+    config["cookie"]["name"],
+    config["cookie"]["key"],
+    config["cookie"]["expiry_days"],
+    config["pre-authorized"],
+)
 
 # INITS
 NAMES = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
@@ -52,7 +68,7 @@ def click(key):
     ss.clicks[key] = True
 
 
-def main():
+def program():
     # Thumbnail for PLN
     st.image(thumbnail, use_column_width=True)
     st.title("BILLING AI")
@@ -242,6 +258,20 @@ def main():
     elif not ss.start_df.equals(edited_df):
         edited_df = ss.start_df
         rr()
+
+
+def main():
+    name, authentication_status, username = authenticator.login()
+
+    if st.session_state["authentication_status"]:
+        authenticator.logout()
+        st.write(f'Welcome *{st.session_state["name"]}!*')
+        # MAIN FUNCTION
+        program()
+    elif st.session_state["authentication_status"] is False:
+        st.error("Username/password is incorrect")
+    elif st.session_state["authentication_status"] is None:
+        st.warning("Please enter your username and password")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,15 @@
+credentials:
+  usernames:
+    trial:
+      email: trial@gmail.com
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Akun Trial
+      password: trial123 # Will be hashed automatically
+cookie:
+  expiry_days: 30
+  key: something # Must be string
+  name: cookie_for_auth
+pre-authorized:
+  emails:
+    - something@gmail.com
